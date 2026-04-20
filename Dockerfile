@@ -6,4 +6,5 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "telegram_bot.py"]
+EXPOSE 7860
+CMD ["python", "telegram_bot.py"]

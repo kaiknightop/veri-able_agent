@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 from datetime import datetime
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Import your agent
 from veriable_agent import run_veriable_agent
@@ -120,11 +122,34 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ----------------------------
+# HEALTH CHECK SERVER (FOR HUGGING FACE)
+# ----------------------------
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Bot is alive!")
+
+    def log_message(self, format, *args):
+        return  # Keep logs clean
+
+def run_health_check_server():
+    server = HTTPServer(("0.0.0.0", 7860), HealthCheckHandler)
+    print("✅ Health check server started on port 7860")
+    server.serve_forever()
+
+# ----------------------------
 # MAIN FUNCTION
 # ----------------------------
 
 def main():
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+    # Start health check server in background
+    threading.Thread(target=run_health_check_server, daemon=True).start()
+
+    # Build app with increased timeouts
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).read_timeout(30).connect_timeout(30).build()
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
