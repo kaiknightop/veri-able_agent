@@ -8,6 +8,18 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Import your agent
 from veriable_agent import run_veriable_agent
+import logging
+import sys
+
+# Configure logging to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -35,11 +47,17 @@ sensitive_words = ["api key", "token", "password", "supabase"]
 # ----------------------------
 
 def log_interaction(user_input, response):
-    with open("agent_logs.txt", "a", encoding="utf-8") as f:
-        f.write(f"\n[{datetime.now()}]\n")
-        f.write(f"User: {user_input}\n")
-        f.write(f"Agent: {response}\n")
-        f.write("-" * 50 + "\n")
+    log_entry = f"\n[{datetime.now()}]\nUser: {user_input}\nAgent: {response}\n" + ("-" * 50)
+    
+    # Still write to file (optional)
+    try:
+        with open("agent_logs.txt", "a", encoding="utf-8") as f:
+            f.write(log_entry + "\n")
+    except Exception as e:
+        logger.error(f"Failed to write to log file: {e}")
+
+    # CRITICAL: Also print to console for Hugging Face logs
+    print(f"--- INTERACTION LOG ---\n{log_entry}", flush=True)
 
 
 # ----------------------------
@@ -153,7 +171,8 @@ def main():
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("🤖 Telegram Bot Running...")
+    print("🤖 Telegram Bot Running...", flush=True)
+    logger.info("Bot polling started...")
     app.run_polling()
 
 
