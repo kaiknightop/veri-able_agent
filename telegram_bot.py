@@ -136,7 +136,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ----------------------------
     # 8. SEND RESPONSE (Telegram limit)
     # ----------------------------
-    await update.message.reply_text(response[:4000])
+    try:
+        await update.message.reply_text(response[:4000])
+    except Exception as e:
+        print(f"❌ Error sending message: {e}")
+        # Try one more time with a smaller timeout
+        await update.message.reply_text(response[:4000], write_timeout=60)
+
+
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    logger.error(msg="Exception while handling an update:", exc_info=context.error)
+    
+    # Notify user if it's a message update
+    if isinstance(update, Update) and update.effective_message:
+        try:
+            await update.effective_message.reply_text(
+                "⚠️ I'm having a bit of trouble connecting to my brain (network timeout). "
+                "I've logged the issue, please try again in a few seconds!"
+            )
+        except:
+            pass # If we can't even send the error, nothing much we can do
 
 
 # ----------------------------
@@ -166,13 +185,20 @@ def main():
     # Start health check server in background
     threading.Thread(target=run_health_check_server, daemon=True).start()
 
-    # Build app with increased timeouts
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).read_timeout(30).connect_timeout(30).build()
+    # Build app with significantly increased timeouts for stable Hugging Face hosting
+    app = ApplicationBuilder() \
+        .token(TELEGRAM_TOKEN) \
+        .read_timeout(60) \
+        .connect_timeout(60) \
+        .write_timeout(60) \
+        .pool_timeout(60) \
+        .build()
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_error_handler(error_handler)
 
     print("🤖 Telegram Bot Running...", flush=True)
-    logger.info("Bot polling started...")
+    logger.info("Bot polling started with high-timeout configuration...")
     app.run_polling()
 
 

@@ -16,10 +16,16 @@ os.environ["GROQ_API_KEY"] = groq_key
 
 
 
-# LLM CONFIG (GROQ)
-
+# PRIMARY LLM CONFIG (High Performance)
 veriable_llm = LLM(
     model="groq/llama-3.3-70b-versatile",
+    temperature=0.3,
+    max_tokens=2000
+)
+
+# FALLBACK LLM CONFIG (Faster, less likely to hit limits)
+fallback_llm = LLM(
+    model="groq/llama-3.1-8b-instant",
     temperature=0.3,
     max_tokens=2000
 )
@@ -109,8 +115,20 @@ def run_veriable_agent(user_input):
 Client Brief:
 {user_input}
 """
-    response = veriable_llm.call(prompt)
-    return response
+    try:
+        # Try primary model first
+        response = veriable_llm.call(prompt)
+        return response
+    except Exception as e:
+        print(f"⚠️ Primary model error (Rate Limit?): {e}")
+        try:
+            # Try fallback model
+            print("🔄 Using fallback model...")
+            response = fallback_llm.call(prompt)
+            return response
+        except Exception as fallback_error:
+            print(f"❌ Fallback failed: {fallback_error}")
+            raise fallback_error
 
 
 
