@@ -7,28 +7,33 @@ from crewai import LLM
 
 load_dotenv()
 
-groq_key = os.getenv("GROQ_API_KEY")
+# Lazy-initialized LLMs (created on first use so a missing key fails gracefully)
+_veriable_llm = None
+_fallback_llm = None
 
-if not groq_key:
-    raise ValueError("❌ GROQ_API_KEY not found in .env file")
-
-os.environ["GROQ_API_KEY"] = groq_key
-
-
-
-# PRIMARY LLM CONFIG (High Performance)
-veriable_llm = LLM(
-    model="groq/llama-3.3-70b-versatile",
-    temperature=0.3,
-    max_tokens=2000
-)
-
-# FALLBACK LLM CONFIG (Faster, less likely to hit limits)
-fallback_llm = LLM(
-    model="groq/llama-3.1-8b-instant",
-    temperature=0.3,
-    max_tokens=2000
-)
+def _get_llms():
+    """Initialize LLMs lazily so a missing API key produces a clear error message
+    instead of crashing at import time (which silently kills the bot)."""
+    global _veriable_llm, _fallback_llm
+    if _veriable_llm is None:
+        groq_key = os.getenv("GROQ_API_KEY")
+        if not groq_key:
+            raise ValueError(
+                "❌ GROQ_API_KEY is not set. "
+                "Add it as a Secret in your Hugging Face Space settings."
+            )
+        os.environ["GROQ_API_KEY"] = groq_key
+        _veriable_llm = LLM(
+            model="groq/llama-3.3-70b-versatile",
+            temperature=0.3,
+            max_tokens=2000
+        )
+        _fallback_llm = LLM(
+            model="groq/llama-3.1-8b-instant",
+            temperature=0.3,
+            max_tokens=2000
+        )
+    return _veriable_llm, _fallback_llm
 
 
 
@@ -115,9 +120,10 @@ def run_veriable_agent(user_input):
 Client Brief:
 {user_input}
 """
+    primary_llm, fallback_llm = _get_llms()
     try:
         # Try primary model first
-        response = veriable_llm.call(prompt)
+        response = primary_llm.call(prompt)
         return response
     except Exception as e:
         print(f"⚠️ Primary model error (Rate Limit?): {e}")
