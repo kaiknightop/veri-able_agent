@@ -199,7 +199,7 @@ def main():
 
     print("🤖 Telegram Bot Running...", flush=True)
     logger.info("Bot polling started with high-timeout configuration...")
-    app.run_polling()
+    app.run_polling(bootstrap_retries=5)
 
 
 # ----------------------------
