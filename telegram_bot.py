@@ -10,6 +10,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from veriable_agent import run_veriable_agent
 import logging
 import sys
+import asyncio
 
 # Configure logging to stdout
 logging.basicConfig(
@@ -106,7 +107,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 4. RUN AGENT SAFELY
     # ----------------------------
     try:
-        response = run_veriable_agent(user_input)
+        # Run the synchronous agent in a separate thread to prevent blocking the async event loop
+        response = await asyncio.to_thread(run_veriable_agent, user_input)
 
     except Exception as e:
         print(f"Error: {e}")
