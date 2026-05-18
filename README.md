@@ -1,4 +1,4 @@
-# Day 13: Veriable Sprint Documentation
+# Veriable Sprint Documentation
 
 ## Live Demo & Links
 - **🤖 Telegram Bot:** [Interact with the Agent Here](https://t.me/veriable_agent_bot)
@@ -45,7 +45,7 @@ Memory and state are handled persistently via **Supabase**. Client records, inte
 
 ---
 
-## 2. Internal Process Document: How We Build Agents at Veriable
+## 2. How We Build Agents at:** [Veriable](https://veriable.xyz)
 
 **From Brief to Deployment: The Veriable Pipeline**
 
@@ -69,9 +69,8 @@ Once deployed, the agent is tested in production. We monitor its outputs, refine
 
 ---
 
-## 3. Client-Facing Description
+## 3. Veriable Client Intake Agent
 
-**Veriable Client Intake Agent**
 Our Client Intake Agent is an intelligent, always-on assistant designed to instantly qualify leads and scope projects the moment a prospect reaches out. Instead of making clients wait days for a proposal, the agent chats with them to understand their needs, asks clarifying questions, and autonomously generates a comprehensive, structured project plan—complete with timelines and package recommendations. For your business, this means zero delays in lead response, zero dropped opportunities, and a streamlined sales pipeline that works 24/7 while you focus on delivery.
 
 ---
