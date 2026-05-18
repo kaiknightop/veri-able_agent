@@ -45,7 +45,7 @@ Memory and state are handled persistently via **Supabase**. Client records, inte
 
 ---
 
-## 2. How We Build Agents at:** [Veriable](https://veriable.xyz)
+## 2. How We Build Agents at [Veriable:](https://veriable.xyz)
 
 **From Brief to Deployment: The Veriable Pipeline**
 
