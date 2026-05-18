@@ -1,5 +1,16 @@
 # Day 13: Veriable Sprint Documentation
 
+## Live Demo & Links
+- **🤖 Telegram Bot:** [Interact with the Agent Here](https://t.me/veriable_agent_bot)
+- **🟢 Replit Server Status:** [View Live Deployment](https://32c57bed-6a46-4f7f-854d-ab5a020872d2-00-34tfnjw0utsv6.spock.replit.dev/)
+
+### Previews
+![Telegram Bot Interface](images/telegram_bot.png)
+<br>
+![Server UI Status](images/server_ui.png)
+
+---
+
 ## 1. Agent Documentation
 
 ### What the Agent Does
